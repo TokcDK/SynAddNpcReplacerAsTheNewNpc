@@ -33,7 +33,7 @@ namespace SynAddNpcModelReplacerAsTheNewNpc
             var data = Settings.SearchData;
 
             Console.WriteLine($"Search and modify model paths..");
-            var aaList = new Dictionary<FormKey, TargetFormKeyData>();
+            var aaList = new Dictionary<FormKey, List<TargetFormKeyData>>();
             foreach (var context in state.LoadOrder.PriorityOrder.ArmorAddon().WinningContextOverrides())
             {
                 var getter = context.Record;
@@ -87,7 +87,11 @@ namespace SynAddNpcModelReplacerAsTheNewNpc
                                 Pair = pair,
                             };
 
-                            aaList.Add(getter.FormKey, d);
+                            if (!aaList.ContainsKey(getter.FormKey))
+                            {
+                                aaList.Add(getter.FormKey, new List<TargetFormKeyData>() { d });
+                            }
+                            else aaList[getter.FormKey].Add(d);
 
                             aacache = aa;
                         }
