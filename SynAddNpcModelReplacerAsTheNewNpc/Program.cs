@@ -3,6 +3,7 @@ using Mutagen.Bethesda;
 using Mutagen.Bethesda.Plugins;
 using Mutagen.Bethesda.Skyrim;
 using Mutagen.Bethesda.Synthesis;
+using Noggog;
 
 namespace SynAddNpcModelReplacerAsTheNewNpc
 {
@@ -166,6 +167,56 @@ namespace SynAddNpcModelReplacerAsTheNewNpc
                 npcList.Add(getter.FormKey, d);
             }
             Console.WriteLine($"Created {npcList.Count} modified npcss");
+
+            // search npc lists where is found npc placed
+            int changedCnt = 0;
+            Console.WriteLine($"Process npc lsts for npc records to add..");
+            foreach (var context in state.LoadOrder.PriorityOrder.LeveledNpc().WinningContextOverrides())
+            {
+                var getter = context.Record;
+
+                if (getter.Entries == null) continue;
+
+                var entries2add = new List<LeveledNpcEntry>();
+                var entriesParsed = new HashSet<ILeveledNpcEntryGetter>();
+
+                void ParseEntry(ILeveledNpcEntryGetter e)
+                {
+                    if (e.Data == null) return;
+                    if (e.Data.Reference.IsNull) return;
+                    if (entriesParsed.Contains(e)) return;
+
+                    var fkey = e.Data.Reference.FormKey;
+                    if (!npcList.ContainsKey(fkey)) return;
+
+                    var npcd = npcList[fkey];
+
+                    entriesParsed.Add(e);
+                    entries2add.Add(GetLeveledNpcEntrie(npcd.FormKey, e.Data.Level, e.Data.Count));
+                }
+
+                foreach (var e in getter.Entries) ParseEntry(e);
+
+                // check records from source even ef they are removed by other mod
+                if (context.ModKey != getter.FormKey.ModKey
+                    && state.LoadOrder.TryGetValue(getter.FormKey.ModKey, out var mod)
+                    && mod.Mod!.LeveledNpcs.TryGetValue(getter.FormKey, out var o)
+                    && o.Entries != null
+                    )
+                {
+                    foreach (var e in o.Entries) ParseEntry(e);
+                }
+
+                if (entries2add.Count == 0) continue;
+
+                // place changed npc records links in lnpc lists
+                var changed = state.PatchMod.LeveledNpcs.GetOrAddAsOverride(getter);
+
+                foreach (var entry in entries2add) changed.Entries!.Add(entry);
+
+                changedCnt++;
+            }
+            Console.WriteLine($"Changed {changedCnt} leveled npc lists");
         }
 
         private static LeveledNpcEntry GetLeveledNpcEntrie(FormKey formKey, short level, short count)
