@@ -69,7 +69,7 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
             Console.WriteLine($"Changed {changedCnt} leveled npc lists");
         }
 
-        private static LeveledNpcEntry GetLeveledNpcEntrie(FormKey formKey, short level, short count)
+        internal static LeveledNpcEntry GetLeveledNpcEntrie(FormKey formKey, short level = 1, short count = 1)
         {
             var e = new LeveledNpcEntry
             {

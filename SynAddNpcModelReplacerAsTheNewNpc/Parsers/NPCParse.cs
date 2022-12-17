@@ -66,6 +66,37 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
             // Note: after create npc with changed skin armors need to search
             // all npc referring to originals of npc changed copy of one was created and
             // replace template ref to original by LNPC list where will be changed and original record
+            foreach (var context in state.LoadOrder.PriorityOrder.Npc().WinningContextOverrides())
+            {
+                var getter = context.Record;
+
+                if (!getter.Configuration.Flags.HasFlag(NpcConfiguration.Flag.Female)) continue;
+                if (getter.Template.IsNull) continue;
+
+                var templateFormKey = getter.Template.FormKey;
+
+                // search template ref to changed original
+                if (!npcList.ContainsKey(templateFormKey)) continue;
+
+                if (!getter.Template.TryResolve<INpcGetter>(state.LinkCache, out var npcGetter)) continue;
+
+                var npcdatas = npcList[templateFormKey];
+
+                var lnpc = state.PatchMod.LeveledNpcs.AddNew("LNpc" + npcGetter.EditorID + "Sublist");
+                lnpc.Entries = new ExtendedList<LeveledNpcEntry>
+                {
+                    LNPCParse.GetLeveledNpcEntrie(templateFormKey)
+                };
+
+                // add all changed npcs
+                foreach (var npcdata in npcdatas) 
+                    lnpc.Entries.Add(LNPCParse.GetLeveledNpcEntrie(npcdata.FormKey));
+
+                var npc = state.PatchMod.Npcs.GetOrAddAsOverride(npcGetter);
+
+                // relink template to merged lnpc
+                npc.Template.SetTo(lnpc.FormKey);
+            }
 
             Console.WriteLine($"Created {npcList.Count} modified npcss");
         }
