@@ -13,7 +13,6 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
 
         internal static void GetChangedNPC(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
         {
-
             // search all npc where worn armor is equal found
             Console.WriteLine($"Process npc records to use new skins..");
             var npcList = new Dictionary<FormKey, List<TargetFormKeyData>>();
@@ -21,8 +20,7 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
             {
                 var getter = context.Record;
 
-                if (!getter.Configuration.Flags.HasFlag(NpcConfiguration.Flag.Female)) continue;
-                if (npcList.ContainsKey(getter.FormKey)) continue;
+                //if (npcList.ContainsKey(getter.FormKey)) continue;
 
                 var wArmrFormKey = GetWornArmorFlag(getter, state);
                 if (!ArmrParse.aList.ContainsKey(wArmrFormKey)) continue;
@@ -32,6 +30,17 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
                 {
                     if (ad.Data!.NpcSkipUnique
                         && getter.Configuration.Flags.HasFlag(NpcConfiguration.Flag.Unique)) continue;
+
+                    if (ad.Data.NpcGender == WorldModelGender.FemaleOnly 
+                        && !getter.Configuration.Flags.HasFlag(NpcConfiguration.Flag.Female))
+                    {
+                        continue;
+                    }
+                    else if (ad.Data.NpcGender == WorldModelGender.MaleOnly
+                        && !getter.Configuration.Flags.HasFlag(NpcConfiguration.Flag.Female))
+                    {
+                        continue;
+                    }
 
                     // create copy of npc which to place as extra lnpc recors and relink worn armor to changed
                     var changed = context.DuplicateIntoAsNewRecord(state.PatchMod);
