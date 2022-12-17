@@ -1,6 +1,7 @@
 using Mutagen.Bethesda;
-using Mutagen.Bethesda.Synthesis;
+using Mutagen.Bethesda.Plugins;
 using Mutagen.Bethesda.Skyrim;
+using Mutagen.Bethesda.Synthesis;
 
 namespace SynAddNpcModelReplacerAsTheNewNpc
 {
@@ -20,7 +21,58 @@ namespace SynAddNpcModelReplacerAsTheNewNpc
 
         public static void RunPatch(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
         {
-            //Your code here!
+            var data = Settings.SearchData;
+
+            string suffixFormodifiedRecords = "PsBossFemale";
+
+            Console.WriteLine($"Search and modify model paths..");
+            var aaList = new Dictionary<FormKey, FormKey>();
+            foreach (var context in state.LoadOrder.PriorityOrder.ArmorAddon().WinningContextOverrides())
+            {
+                var getter = context.Record;
+                if (getter.WorldModel == null) continue;
+                if (aaList.ContainsKey(getter.FormKey)) continue;
+
+                foreach (var target in data)
+                {
+                    IArmorAddon? aacache = null;
+
+                    foreach((IModelGetter? worldModel, WorldModelGender genderFlag) in new[]
+                    {
+                        ( getter.WorldModel.Female, WorldModelGender.FemaleOnly ),
+                        ( getter.WorldModel.Male, WorldModelGender.MaleOnly )
+                    })
+                    {
+                        if ((target.NpcGender == genderFlag
+                            || target.NpcGender == WorldModelGender.Any)
+                            && worldModel != null
+                            && !worldModel.File.IsNull
+                            )
+                        {
+                            if (!string.Equals(worldModel.File.RawPath,
+                                target.SearchWorldModelPath, StringComparison.InvariantCultureIgnoreCase)) continue;
+
+                            // create copy of found aa with changed female wmodel path to replacer path
+                            var aa = context.DuplicateIntoAsNewRecord(state.PatchMod);
+
+                            var path = worldModel.File.DataRelativePath
+                                .Replace("Actors\\Draugr\\", "PsBoss\\Draugr\\", StringComparison.InvariantCultureIgnoreCase);
+
+                            Model? tm = genderFlag == WorldModelGender.FemaleOnly ?
+                                aa.WorldModel!.Female :
+                                aa.WorldModel!.Male;
+
+                            tm!.File.TrySetPath(path);
+                            if(aacache == null) aa.EditorID = getter.EditorID + suffixFormodifiedRecords;
+
+                            aaList.Add(getter.FormKey, aa.FormKey);
+
+                            aacache = aa;
+                        }
+                    }
+                }
+            }
+            Console.WriteLine($"Created {aaList.Count} modified skin aa");
         }
     }
 }

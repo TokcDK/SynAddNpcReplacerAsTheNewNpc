@@ -28,6 +28,8 @@ namespace SynAddNpcModelReplacerAsTheNewNpc
         public string Url = "";
         [SynthesisTooltip("Unique npcs will be ignored")]
         public bool NpcSkipUnique  = true;
+
+        internal Dictionary<FormKey, FormKey> AAReplaceData = new();
     }
 
     public class Settings
