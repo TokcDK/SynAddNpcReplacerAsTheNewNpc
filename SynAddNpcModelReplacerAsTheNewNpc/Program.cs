@@ -41,6 +41,8 @@ namespace SynAddNpcModelReplacerAsTheNewNpc
 
                 foreach (var target in data)
                 {
+                    if (!target.Enabled) continue;
+
                     IArmorAddon? aacache = null;
 
                     foreach((IModelGetter? worldModel, WorldModelGender genderFlag) in new[]

@@ -14,6 +14,8 @@ namespace SynAddNpcModelReplacerAsTheNewNpc
     [SynthesisObjectNameMember(nameof(EDIDSuffix))]
     public class NPCReplacerData
     {
+        [SynthesisTooltip("Enable using the data")]
+        public bool Enabled = true;
         [SynthesisTooltip("Unique Editor ID suffix which will be added for each changed records EDID for this data")]
         public string? EDIDSuffix;
         [SynthesisTooltip("Search string pairs")]
@@ -79,6 +81,7 @@ namespace SynAddNpcModelReplacerAsTheNewNpc
             },
             new NPCReplacerData()
             {
+                Enabled = false,
                 EDIDSuffix = "PsBossNewDraugrFemaleNude",
                 SearchPairs = new()
                 {
