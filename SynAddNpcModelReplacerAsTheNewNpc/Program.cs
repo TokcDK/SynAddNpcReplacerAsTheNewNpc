@@ -23,8 +23,6 @@ namespace SynAddNpcModelReplacerAsTheNewNpc
         {
             var data = Settings.SearchData;
 
-            string suffixFormodifiedRecords = "PsBossFemale";
-
             Console.WriteLine($"Search and modify model paths..");
             var aaList = new Dictionary<FormKey, FormKey>();
             foreach (var context in state.LoadOrder.PriorityOrder.ArmorAddon().WinningContextOverrides())
@@ -62,7 +60,7 @@ namespace SynAddNpcModelReplacerAsTheNewNpc
                                 aa.WorldModel!.Male;
 
                             tm!.File.TrySetPath(path);
-                            if(aacache == null) aa.EditorID = getter.EditorID + suffixFormodifiedRecords;
+                            if(aacache == null) aa.EditorID = getter.EditorID + target.EDIDSuffix;
 
                             aaList.Add(getter.FormKey, aa.FormKey);
 
