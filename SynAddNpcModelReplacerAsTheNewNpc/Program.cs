@@ -1,3 +1,4 @@
+using DynamicData;
 using Mutagen.Bethesda;
 using Mutagen.Bethesda.Plugins;
 using Mutagen.Bethesda.Skyrim;
@@ -93,6 +94,43 @@ namespace SynAddNpcModelReplacerAsTheNewNpc
                 }
             }
             Console.WriteLine($"Created {aaList.Count} modified skin aa");
+
+
+
+            // search all armors referring found aa
+            Console.WriteLine($"Process skins to use new models..");
+            var aList = new Dictionary<FormKey, TargetFormKeyData>();
+            foreach (var context in state.LoadOrder.PriorityOrder.Armor().WinningContextOverrides())
+            {
+                var getter = context.Record;
+
+                if (!getter.MajorFlags.HasFlag(Armor.MajorFlag.NonPlayable)
+                    && getter.BodyTemplate != null
+                    && !getter.BodyTemplate.Flags.HasFlag(BodyTemplate.Flag.NonPlayable)) continue;
+                if (getter.Armature.Count != 1) continue;
+                if (aList.ContainsKey(getter.FormKey)) continue;
+
+                var aafKey = getter.Armature[0].FormKey;
+                if (!aaList.ContainsKey(aafKey)) continue;
+
+                // create copy of found armors and relink aa there to changed aa
+                var changed = context.DuplicateIntoAsNewRecord(state.PatchMod);
+
+                changed.Armature.Clear();
+                var aad = aaList[aafKey];
+                changed.Armature.Add(aad.FormKey);
+                changed.EditorID = getter.EditorID + aad.Data!.EDIDSuffix;
+
+                var d = new TargetFormKeyData
+                {
+                    FormKey = changed.FormKey,
+                    Data = aad.Data,
+                    Pair = aad.Pair,
+                };
+
+                aList.Add(getter.FormKey, d);
+            }
+            Console.WriteLine($"Created {aList.Count} modified a skins");
         }
     }
 }
