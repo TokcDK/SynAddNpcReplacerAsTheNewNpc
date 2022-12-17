@@ -42,7 +42,7 @@ namespace SynAddNpcModelReplacerAsTheNewNpc
     public class Settings
     {
         [SynthesisTooltip("Mods list of changing npc appearance mods")]
-        public List<NPCReplacerData> SearchData { get; } = new()
+        public List<NPCReplacerData> SearchData = new()
         {
             new NPCReplacerData()
             {

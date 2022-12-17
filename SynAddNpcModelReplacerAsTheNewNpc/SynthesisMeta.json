@@ -2,7 +2,7 @@
   "Nickname": "",
   "Visibility": "Visible",
   "OneLineDescription": "For npc replacers auto create the new npcs",
-  "LongDescription": "Synthesis patcher.\nChanges skin model path data to use models from standard to replacers path\nand creates a new npcs next to original with uniwue appearance from replacer.\nAffects also installed mods.\n\nSee the exampple mod in the patcher settings",
+  "LongDescription": "Synthesis patcher.\nChanges skin model path data to use models from standard to replacers path\nand creates a new npcs next to original with uniwue appearance from replacer.\nAffects also installed mods.\n\nSee the example mod in the patcher settings",
   "PreferredAutoVersioning": "Default",
   "RequiredMods": [],
   "TargetedReleases": [
