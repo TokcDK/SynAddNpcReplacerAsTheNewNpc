@@ -4,6 +4,7 @@ using Mutagen.Bethesda.Plugins;
 using Mutagen.Bethesda.Skyrim;
 using Mutagen.Bethesda.Synthesis;
 using Noggog;
+using SynAddNpcModelReplacerAsTheNewNpc.Data;
 
 namespace SynAddNpcModelReplacerAsTheNewNpc
 {
@@ -32,18 +33,7 @@ namespace SynAddNpcModelReplacerAsTheNewNpc
         {
             var data = Settings.SearchData;
 
-            Console.WriteLine($"\nUsed target replacers:");
-            Console.WriteLine($"---");
-            foreach (var target in data)
-            {
-                if (!target.Enabled) continue;
-
-                var url = !string.IsNullOrWhiteSpace(target.Url) ? "\n Url: " + target.Url : "";
-                var note = !string.IsNullOrWhiteSpace(target.Note) ? "\n Note: " + target.Note : "";
-                Console.WriteLine($" ID: {target.ID}{url}{note}");
-                Console.WriteLine($"-");
-            }
-            Console.WriteLine($"---\n");
+            General.ShowTargetsInfo();
 
             Console.WriteLine($"Search and modify model paths..");
             var aaList = new Dictionary<FormKey, List<TargetFormKeyData>>();
