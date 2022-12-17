@@ -51,6 +51,7 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
                 }
             }
 
+            Console.WriteLine($"Search template refs for original of changed npcs..");
             // Note: after create npc with changed skin armors need to search
             // all npc referring to originals of npc changed copy of one was created and
             // replace template ref to original by LNPC list where will be changed and original record
