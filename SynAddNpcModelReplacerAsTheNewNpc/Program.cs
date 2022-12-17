@@ -53,14 +53,23 @@ namespace SynAddNpcModelReplacerAsTheNewNpc
                             && !worldModel.File.IsNull
                             )
                         {
-                            if (!string.Equals(worldModel.File.RawPath,
-                                target.SearchWorldModelPath, StringComparison.InvariantCultureIgnoreCase)) continue;
+                            SearchReplacePair? pair = null;
+                            foreach (var searchPair in target.SearchPairs)
+                            {
+                                if (!string.Equals(worldModel.File.RawPath,
+                                    searchPair.SearchWorldModelPath, StringComparison.InvariantCultureIgnoreCase)) continue;
+
+                                pair = searchPair;
+                                break;
+                            }
+
+                            if (pair == null) continue;
 
                             // create copy of found aa with changed female wmodel path to replacer path
                             var aa = context.DuplicateIntoAsNewRecord(state.PatchMod);
 
                             var path = worldModel.File.DataRelativePath
-                                .Replace(target.SearchWorldModelPath!, target.ReplaceWith, StringComparison.InvariantCultureIgnoreCase);
+                                .Replace(pair.SearchWorldModelPath!, pair.ReplaceWith, StringComparison.InvariantCultureIgnoreCase);
 
                             Model? tm = genderFlag == WorldModelGender.FemaleOnly ?
                                 aa.WorldModel!.Female :
@@ -72,7 +81,8 @@ namespace SynAddNpcModelReplacerAsTheNewNpc
                             var d = new TargetFormKeyData
                             {
                                 FormKey = aa.FormKey,
-                                Data = target
+                                Data = target,
+                                Pair = pair,
                             };
 
                             aaList.Add(getter.FormKey, d);
