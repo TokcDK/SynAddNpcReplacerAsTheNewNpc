@@ -1,4 +1,4 @@
-# SynAddNpcModelReplacerAsTheNewNpc
+# SynAddNpcReplacerAsTheNewNpc
 [Synthesis](https://github.com/Mutagen-Modding/Synthesis) patcher.
 
 Changes skin model path data to use models from standard to replacers path
