@@ -31,7 +31,6 @@ namespace SynAddNpcModelReplacerAsTheNewNpc
             {
                 var getter = context.Record;
                 if (getter.WorldModel == null) continue;
-                if (aaList.ContainsKey(getter.FormKey)) continue;
 
                 foreach (var target in data)
                 {
