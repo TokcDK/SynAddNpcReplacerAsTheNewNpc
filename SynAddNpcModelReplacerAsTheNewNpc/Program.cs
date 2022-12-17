@@ -19,12 +19,18 @@ namespace SynAddNpcModelReplacerAsTheNewNpc
                 .Run(args);
         }
 
+        public class TargetFormKeyData
+        {
+            public FormKey FormKey;
+            public NPCReplacerData? Data;
+        }
+
         public static void RunPatch(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
         {
             var data = Settings.SearchData;
 
             Console.WriteLine($"Search and modify model paths..");
-            var aaList = new Dictionary<FormKey, FormKey>();
+            var aaList = new Dictionary<FormKey, TargetFormKeyData>();
             foreach (var context in state.LoadOrder.PriorityOrder.ArmorAddon().WinningContextOverrides())
             {
                 var getter = context.Record;
@@ -62,7 +68,13 @@ namespace SynAddNpcModelReplacerAsTheNewNpc
                             tm!.File.TrySetPath(path);
                             if(aacache == null) aa.EditorID = getter.EditorID + target.EDIDSuffix;
 
-                            aaList.Add(getter.FormKey, aa.FormKey);
+                            var d = new TargetFormKeyData
+                            {
+                                FormKey = aa.FormKey,
+                                Data = target
+                            };
+
+                            aaList.Add(getter.FormKey, d);
 
                             aacache = aa;
                         }
