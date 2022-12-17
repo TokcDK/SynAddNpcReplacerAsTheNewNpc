@@ -11,13 +11,13 @@ namespace SynAddNpcModelReplacerAsTheNewNpc
         MaleOnly
     }
 
-    [SynthesisObjectNameMember(nameof(EDIDSuffix))]
+    [SynthesisObjectNameMember(nameof(ID))]
     public class NPCReplacerData
     {
         [SynthesisTooltip("Enable using the data")]
         public bool Enabled = true;
         [SynthesisTooltip("Unique Editor ID suffix which will be added for each changed records EDID for this data")]
-        public string? EDIDSuffix;
+        public string? ID;
         [SynthesisTooltip("Search string pairs")]
         public HashSet<SearchReplacePair> SearchPairs = new();
         [SynthesisTooltip("Npc specific gender. For case when need to search npcs with specific gender.")]
@@ -47,7 +47,7 @@ namespace SynAddNpcModelReplacerAsTheNewNpc
         {
             new NPCReplacerData()
             {
-                EDIDSuffix = "PsBossNewDraugrFemale",
+                ID = "PsBossNewDraugrFemale",
                 SearchPairs = new()
                 {
                     new SearchReplacePair()
@@ -82,7 +82,7 @@ namespace SynAddNpcModelReplacerAsTheNewNpc
             new NPCReplacerData()
             {
                 Enabled = false,
-                EDIDSuffix = "PsBossNewDraugrFemaleNude",
+                ID = "PsBossNewDraugrFemaleNude",
                 SearchPairs = new()
                 {
                     new SearchReplacePair()

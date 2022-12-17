@@ -32,6 +32,15 @@ namespace SynAddNpcModelReplacerAsTheNewNpc
         {
             var data = Settings.SearchData;
 
+            Console.WriteLine($"Used target replacers:");
+            foreach (var target in data)
+            {
+                var url = !string.IsNullOrWhiteSpace(target.Url) ? "\n Url: " + target.Url : "";
+                Console.WriteLine($" ID:{target.ID}{url}");
+                Console.WriteLine($"--");
+            }
+            Console.WriteLine($"---\n\n");
+
             Console.WriteLine($"Search and modify model paths..");
             var aaList = new Dictionary<FormKey, List<TargetFormKeyData>>();
             foreach (var context in state.LoadOrder.PriorityOrder.ArmorAddon().WinningContextOverrides())
@@ -80,7 +89,7 @@ namespace SynAddNpcModelReplacerAsTheNewNpc
                                 aa.WorldModel!.Male;
 
                             tm!.File.TrySetPath(path);
-                            if(aacache == null) aa.EditorID = getter.EditorID + target.EDIDSuffix;
+                            if(aacache == null) aa.EditorID = getter.EditorID + target.ID;
 
                             var d = new TargetFormKeyData
                             {
@@ -129,7 +138,7 @@ namespace SynAddNpcModelReplacerAsTheNewNpc
 
                     changed.Armature.Clear();
                     changed.Armature.Add(aad.FormKey);
-                    changed.EditorID = getter.EditorID + aad.Data!.EDIDSuffix;
+                    changed.EditorID = getter.EditorID + aad.Data!.ID;
 
                     var d = new TargetFormKeyData
                     {
@@ -170,7 +179,7 @@ namespace SynAddNpcModelReplacerAsTheNewNpc
                     var changed = context.DuplicateIntoAsNewRecord(state.PatchMod);
 
                     changed.WornArmor.SetTo(ad.FormKey);
-                    changed.EditorID = getter.EditorID + ad.Data!.EDIDSuffix;
+                    changed.EditorID = getter.EditorID + ad.Data!.ID;
 
                     var d = new TargetFormKeyData
                     {
