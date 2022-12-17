@@ -104,7 +104,7 @@ namespace SynAddNpcModelReplacerAsTheNewNpc
 
             // search all armors referring found aa
             Console.WriteLine($"Process skins to use new models..");
-            var aList = new Dictionary<FormKey, TargetFormKeyData>();
+            var aList = new Dictionary<FormKey, List<TargetFormKeyData>>();
             foreach (var context in state.LoadOrder.PriorityOrder.Armor().WinningContextOverrides())
             {
                 var getter = context.Record;
@@ -118,57 +118,71 @@ namespace SynAddNpcModelReplacerAsTheNewNpc
                 var aafKey = getter.Armature[0].FormKey;
                 if (!aaList.ContainsKey(aafKey)) continue;
 
-                // create copy of found armors and relink aa there to changed aa
-                var changed = context.DuplicateIntoAsNewRecord(state.PatchMod);
+                var aadlist = aaList[aafKey];
 
-                changed.Armature.Clear();
-                var aad = aaList[aafKey];
-                changed.Armature.Add(aad.FormKey);
-                changed.EditorID = getter.EditorID + aad.Data!.EDIDSuffix;
-
-                var d = new TargetFormKeyData
+                foreach (var aad in aadlist)
                 {
-                    FormKey = changed.FormKey,
-                    Data = aad.Data,
-                    Pair = aad.Pair,
-                };
+                    // create copy of found armors and relink aa there to changed aa
+                    var changed = context.DuplicateIntoAsNewRecord(state.PatchMod);
 
-                aList.Add(getter.FormKey, d);
+                    changed.Armature.Clear();
+                    changed.Armature.Add(aad.FormKey);
+                    changed.EditorID = getter.EditorID + aad.Data!.EDIDSuffix;
+
+                    var d = new TargetFormKeyData
+                    {
+                        FormKey = changed.FormKey,
+                        Data = aad.Data,
+                        Pair = aad.Pair,
+                    };
+
+                    if (!aList.ContainsKey(getter.FormKey))
+                    {
+                        aList.Add(getter.FormKey, new List<TargetFormKeyData>() { d });
+                    }
+                    else aList[getter.FormKey].Add(d);
+                }
             }
             Console.WriteLine($"Created {aList.Count} modified a skins");
 
             // search all npc where worn armor is equal found
             Console.WriteLine($"Process npc records to use new skins..");
-            var npcList = new Dictionary<FormKey, TargetFormKeyData>();
+            var npcList = new Dictionary<FormKey, List<TargetFormKeyData>>();
             foreach (var context in state.LoadOrder.PriorityOrder.Npc().WinningContextOverrides())
             {
                 var getter = context.Record;
 
-                if (getter.Configuration.Flags.HasFlag(NpcConfiguration.Flag.Unique)) continue;
-                if (getter.Configuration.Flags.HasFlag(NpcConfiguration.Flag.Essential)) continue;
-                if (getter.Configuration.Flags.HasFlag(NpcConfiguration.Flag.Protected)) continue;
                 if (!getter.Configuration.Flags.HasFlag(NpcConfiguration.Flag.Female)) continue;
                 if (npcList.ContainsKey(getter.FormKey)) continue;
 
                 var wArmrFormKey = GetWornArmorFlag(getter, state);
                 if (!aList.ContainsKey(wArmrFormKey)) continue;
+                var adlist = aList[wArmrFormKey];
 
-                // create copy of npc which to place as extra lnpc recors and relink worn armor to changed
-                var changed = context.DuplicateIntoAsNewRecord(state.PatchMod);
-
-                var ad = aList[wArmrFormKey];
-
-                changed.WornArmor.SetTo(ad.FormKey);
-                changed.EditorID = getter.EditorID + ad.Data!.EDIDSuffix;
-
-                var d = new TargetFormKeyData
+                foreach (var ad in adlist)
                 {
-                    FormKey = changed.FormKey,
-                    Data = ad.Data,
-                    Pair = ad.Pair,
-                };
+                    if (ad.Data!.NpcSkipUnique 
+                        && getter.Configuration.Flags.HasFlag(NpcConfiguration.Flag.Unique)) continue;
 
-                npcList.Add(getter.FormKey, d);
+                    // create copy of npc which to place as extra lnpc recors and relink worn armor to changed
+                    var changed = context.DuplicateIntoAsNewRecord(state.PatchMod);
+
+                    changed.WornArmor.SetTo(ad.FormKey);
+                    changed.EditorID = getter.EditorID + ad.Data!.EDIDSuffix;
+
+                    var d = new TargetFormKeyData
+                    {
+                        FormKey = changed.FormKey,
+                        Data = ad.Data,
+                        Pair = ad.Pair,
+                    };
+
+                    if (!npcList.ContainsKey(getter.FormKey))
+                    {
+                        npcList.Add(getter.FormKey, new List<TargetFormKeyData>() { d });
+                    }
+                    else npcList[getter.FormKey].Add(d);
+                }
             }
             Console.WriteLine($"Created {npcList.Count} modified npcss");
 
@@ -193,10 +207,13 @@ namespace SynAddNpcModelReplacerAsTheNewNpc
                     var fkey = e.Data.Reference.FormKey;
                     if (!npcList.ContainsKey(fkey)) return;
 
-                    var npcd = npcList[fkey];
+                    var npcdlist = npcList[fkey];
 
-                    entriesParsed.Add(e);
-                    entries2add.Add(GetLeveledNpcEntrie(npcd.FormKey, e.Data.Level, e.Data.Count));
+                    foreach(var npcd in npcdlist)
+                    {
+                        entriesParsed.Add(e);
+                        entries2add.Add(GetLeveledNpcEntrie(npcd.FormKey, e.Data.Level, e.Data.Count));
+                    }
                 }
 
                 foreach (var e in getter.Entries) ParseEntry(e);

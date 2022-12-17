@@ -45,7 +45,7 @@ namespace SynAddNpcModelReplacerAsTheNewNpc
         {
             new NPCReplacerData()
             {
-                EDIDSuffix = "",
+                EDIDSuffix = "PsBossNewDraugrFemale",
                 SearchPairs = new()
                 {
                     new SearchReplacePair()
@@ -79,7 +79,7 @@ namespace SynAddNpcModelReplacerAsTheNewNpc
             },
             new NPCReplacerData()
             {
-                EDIDSuffix = "",
+                EDIDSuffix = "PsBossNewDraugrFemaleNude",
                 SearchPairs = new()
                 {
                     new SearchReplacePair()
