@@ -4,7 +4,7 @@ using Mutagen.Bethesda.Plugins;
 using Mutagen.Bethesda.Skyrim;
 using Mutagen.Bethesda.Synthesis;
 using Noggog;
-using SynAddNpcModelReplacerAsTheNewNpc.Data;
+using SynAddNpcModelReplacerAsTheNewNpc.Parsers;
 
 namespace SynAddNpcModelReplacerAsTheNewNpc
 {

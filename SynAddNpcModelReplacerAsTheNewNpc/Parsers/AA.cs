@@ -3,7 +3,7 @@ using Mutagen.Bethesda.Plugins;
 using Mutagen.Bethesda.Skyrim;
 using static SynAddNpcModelReplacerAsTheNewNpc.Program;
 
-namespace SynAddNpcModelReplacerAsTheNewNpc.Data
+namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
 {
     internal class AAParse
     {

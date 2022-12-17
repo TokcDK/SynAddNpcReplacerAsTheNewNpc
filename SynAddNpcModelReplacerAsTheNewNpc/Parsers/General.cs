@@ -1,4 +1,4 @@
-﻿namespace SynAddNpcModelReplacerAsTheNewNpc.Data
+﻿namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
 {
     internal class General
     {

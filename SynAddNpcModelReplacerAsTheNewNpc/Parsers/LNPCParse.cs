@@ -9,7 +9,7 @@ using Mutagen.Bethesda.Skyrim;
 using Mutagen.Bethesda.Synthesis;
 using Noggog;
 
-namespace SynAddNpcModelReplacerAsTheNewNpc.Data
+namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
 {
     internal class LNPCParse
     {

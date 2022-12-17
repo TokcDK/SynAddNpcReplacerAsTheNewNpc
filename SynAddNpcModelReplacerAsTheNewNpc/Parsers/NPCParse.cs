@@ -5,7 +5,7 @@ using Mutagen.Bethesda.Synthesis;
 using Noggog;
 using static SynAddNpcModelReplacerAsTheNewNpc.Program;
 
-namespace SynAddNpcModelReplacerAsTheNewNpc.Data
+namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
 {
     internal class NPCParse
     {
