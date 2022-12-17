@@ -28,19 +28,7 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
 
                 foreach (var ad in adlist)
                 {
-                    if (ad.Data!.NpcSkipUnique
-                        && getter.Configuration.Flags.HasFlag(NpcConfiguration.Flag.Unique)) continue;
-
-                    if (ad.Data.NpcGender == WorldModelGender.FemaleOnly 
-                        && !getter.Configuration.Flags.HasFlag(NpcConfiguration.Flag.Female))
-                    {
-                        continue;
-                    }
-                    else if (ad.Data.NpcGender == WorldModelGender.MaleOnly
-                        && !getter.Configuration.Flags.HasFlag(NpcConfiguration.Flag.Female))
-                    {
-                        continue;
-                    }
+                    if (!IsValidFlags(ad, getter)) continue;
 
                     // create copy of npc which to place as extra lnpc recors and relink worn armor to changed
                     var changed = context.DuplicateIntoAsNewRecord(state.PatchMod);
@@ -70,7 +58,6 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
             {
                 var getter = context.Record;
 
-                if (!getter.Configuration.Flags.HasFlag(NpcConfiguration.Flag.Female)) continue;
                 if (getter.Template.IsNull) continue;
 
                 var templateFormKey = getter.Template.FormKey;
@@ -89,8 +76,12 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
                 };
 
                 // add all changed npcs
-                foreach (var npcdata in npcdatas) 
-                    lnpc.Entries.Add(LNPCParse.GetLeveledNpcEntrie(npcdata.FormKey));
+                foreach (var ad in npcdatas)
+                {
+                    if (!IsValidFlags(ad, getter)) continue;
+
+                    lnpc.Entries.Add(LNPCParse.GetLeveledNpcEntrie(ad.FormKey));
+                }
 
                 var npc = state.PatchMod.Npcs.GetOrAddAsOverride(npcGetter);
 
@@ -108,6 +99,25 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
             }
 
             Console.WriteLine($"Created {npcList.Count} modified npcss");
+        }
+
+        private static bool IsValidFlags(TargetFormKeyData ad, INpcGetter getter)
+        {
+            if (ad.Data!.NpcSkipUnique
+                        && getter.Configuration.Flags.HasFlag(NpcConfiguration.Flag.Unique)) return false;
+
+            if (ad.Data.NpcGender == WorldModelGender.FemaleOnly
+                && !getter.Configuration.Flags.HasFlag(NpcConfiguration.Flag.Female))
+            {
+                return false;
+            }
+            else if (ad.Data.NpcGender == WorldModelGender.MaleOnly
+                && !getter.Configuration.Flags.HasFlag(NpcConfiguration.Flag.Female))
+            {
+                return false;
+            }
+
+            return true;
         }
 
         private static FormKey GetWornArmorFlag(INpcGetter getter, IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
