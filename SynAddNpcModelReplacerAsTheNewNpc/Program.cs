@@ -32,14 +32,18 @@ namespace SynAddNpcModelReplacerAsTheNewNpc
         {
             var data = Settings.SearchData;
 
-            Console.WriteLine($"Used target replacers:");
+            Console.WriteLine($"\nUsed target replacers:");
+            Console.WriteLine($"---");
             foreach (var target in data)
             {
+                if (!target.Enabled) continue;
+
                 var url = !string.IsNullOrWhiteSpace(target.Url) ? "\n Url: " + target.Url : "";
-                Console.WriteLine($" ID:{target.ID}{url}");
-                Console.WriteLine($"--");
+                var note = !string.IsNullOrWhiteSpace(target.Note) ? "\n Note: " + target.Note : "";
+                Console.WriteLine($" ID: {target.ID}{url}{note}");
+                Console.WriteLine($"-");
             }
-            Console.WriteLine($"---\n\n");
+            Console.WriteLine($"---\n");
 
             Console.WriteLine($"Search and modify model paths..");
             var aaList = new Dictionary<FormKey, List<TargetFormKeyData>>();

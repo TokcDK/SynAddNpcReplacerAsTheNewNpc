@@ -26,8 +26,7 @@ namespace SynAddNpcModelReplacerAsTheNewNpc
         public string Url = "";
         [SynthesisTooltip("Unique npcs will be ignored")]
         public bool NpcSkipUnique  = true;
-
-        internal Dictionary<FormKey, FormKey> AAReplaceData = new();
+        public string Note  = "";
     }
 
     public class SearchReplacePair
@@ -77,7 +76,8 @@ namespace SynAddNpcModelReplacerAsTheNewNpc
                     },
                 },
                 NpcGender = WorldModelGender.FemaleOnly,
-                Url = "https://www.nexusmods.com/skyrim/mods/114122"
+                Url = "https://www.nexusmods.com/skyrim/mods/114122",
+                Note = "Example replacer. Download replacer variant, unpack and rename 'Actors' dir inside of 'Meshes' of the replacer to 'PsBoss'\nEx: Actors\\Draugr\\Character Assets => PsBoss\\Draugr\\Character Assets",
             },
             new NPCReplacerData()
             {
@@ -112,7 +112,8 @@ namespace SynAddNpcModelReplacerAsTheNewNpc
                     },
                 },
                 NpcGender = WorldModelGender.FemaleOnly,
-                Url = "https://www.nexusmods.com/skyrim/mods/114122"
+                Url = "https://www.nexusmods.com/skyrim/mods/114122",
+                Note = "Download replacer variant, unpack and rename 'Actors' dir inside of 'Meshes' of the replacer to 'PsBossN'\nEx: Actors\\Draugr\\Character Assets => PsBossN\\Draugr\\Character Assets",
             },
         };
     }
