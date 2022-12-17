@@ -53,7 +53,7 @@ namespace SynAddNpcModelReplacerAsTheNewNpc
                             var aa = context.DuplicateIntoAsNewRecord(state.PatchMod);
 
                             var path = worldModel.File.DataRelativePath
-                                .Replace("Actors\\Draugr\\", "PsBoss\\Draugr\\", StringComparison.InvariantCultureIgnoreCase);
+                                .Replace(target.SearchWorldModelPath!, target.ReplaceWith, StringComparison.InvariantCultureIgnoreCase);
 
                             Model? tm = genderFlag == WorldModelGender.FemaleOnly ?
                                 aa.WorldModel!.Female :
