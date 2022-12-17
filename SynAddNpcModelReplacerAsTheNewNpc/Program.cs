@@ -131,6 +131,90 @@ namespace SynAddNpcModelReplacerAsTheNewNpc
                 aList.Add(getter.FormKey, d);
             }
             Console.WriteLine($"Created {aList.Count} modified a skins");
+
+            // search all npc where worn armor is equal found
+            Console.WriteLine($"Process npc records to use new skins..");
+            var npcList = new Dictionary<FormKey, TargetFormKeyData>();
+            foreach (var context in state.LoadOrder.PriorityOrder.Npc().WinningContextOverrides())
+            {
+                var getter = context.Record;
+
+                if (getter.Configuration.Flags.HasFlag(NpcConfiguration.Flag.Unique)) continue;
+                if (getter.Configuration.Flags.HasFlag(NpcConfiguration.Flag.Essential)) continue;
+                if (getter.Configuration.Flags.HasFlag(NpcConfiguration.Flag.Protected)) continue;
+                if (!getter.Configuration.Flags.HasFlag(NpcConfiguration.Flag.Female)) continue;
+                if (npcList.ContainsKey(getter.FormKey)) continue;
+
+                var wArmrFormKey = GetWornArmorFlag(getter, state);
+                if (!aList.ContainsKey(wArmrFormKey)) continue;
+
+                // create copy of npc which to place as extra lnpc recors and relink worn armor to changed
+                var changed = context.DuplicateIntoAsNewRecord(state.PatchMod);
+
+                var ad = aList[wArmrFormKey];
+
+                changed.WornArmor.SetTo(ad.FormKey);
+                changed.EditorID = getter.EditorID + ad.Data!.EDIDSuffix;
+
+                var d = new TargetFormKeyData
+                {
+                    FormKey = changed.FormKey,
+                    Data = ad.Data,
+                    Pair = ad.Pair,
+                };
+
+                npcList.Add(getter.FormKey, d);
+            }
+            Console.WriteLine($"Created {npcList.Count} modified npcss");
+        }
+
+        private static LeveledNpcEntry GetLeveledNpcEntrie(FormKey formKey, short level, short count)
+        {
+            var e = new LeveledNpcEntry
+            {
+                Data = new LeveledNpcEntryData
+                {
+                    Level = level,
+                    Count = count,
+                }
+            };
+            e.Data.Reference.SetTo(formKey);
+
+            return e;
+        }
+
+        private static FormKey GetWornArmorFlag(INpcGetter getter, IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
+        {
+            if (!getter.WornArmor.IsNull)
+            {
+                return getter.WornArmor.FormKey;
+            }
+
+            if (!getter.Template.IsNull)
+            {
+                return GetTemplateFormKey(getter.Template, state);
+            }
+
+            return FormKey.Null;
+        }
+
+        private static FormKey GetTemplateFormKey(IFormLinkNullableGetter<INpcSpawnGetter> template, IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
+        {
+            if (!template.TryResolve(state.LinkCache, out var npc)) return FormKey.Null;
+
+            if (npc is not INpcGetter n) return FormKey.Null;
+
+            if (!n.WornArmor.IsNull)
+            {
+                return n.WornArmor.FormKey;
+            }
+
+            if (!n.Template.IsNull)
+            {
+                return GetTemplateFormKey(n.Template, state);
+            }
+
+            return FormKey.Null;
         }
     }
 }
