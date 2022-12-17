@@ -53,6 +53,11 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
                     else npcList[getter.FormKey].Add(d);
                 }
             }
+
+            // Note: after create npc with changed skin armors need to search
+            // all npc referring to originals of npc changed copy of one was created and
+            // replace template ref to original by LNPC list where will be changed and original record
+
             Console.WriteLine($"Created {npcList.Count} modified npcss");
         }
 
