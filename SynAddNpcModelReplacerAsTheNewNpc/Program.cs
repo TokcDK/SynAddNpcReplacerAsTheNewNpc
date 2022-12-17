@@ -23,6 +23,7 @@ namespace SynAddNpcModelReplacerAsTheNewNpc
         {
             public FormKey FormKey;
             public NPCReplacerData? Data;
+            public SearchReplacePair? Pair;
         }
 
         public static void RunPatch(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
