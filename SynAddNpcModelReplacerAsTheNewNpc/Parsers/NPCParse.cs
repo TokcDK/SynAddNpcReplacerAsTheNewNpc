@@ -87,14 +87,14 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
                 // relink template to merged lnpc
                 npc.Template.SetTo(lnpc.FormKey);
 
-                var d = new TargetFormKeyData
-                {
-                    FormKey = lnpc.FormKey,
-                    Data = npcdatas[0].Data,
-                    Pair = null // null, it will not be use later anyway
-                };
+                //var d = new TargetFormKeyData
+                //{
+                //    FormKey = lnpc.FormKey,
+                //    Data = npcdatas[0].Data,
+                //    Pair = null // null, it will not be use later anyway
+                //};
 
-                npcdatas.Add(d);
+                //npcdatas.Add(d);
             }
 
             Console.WriteLine($"Created {NPCList.Count} modified npcss");
