@@ -18,6 +18,7 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
             // search npc lists where is found npc placed
             int changedCnt = 0;
             Console.WriteLine($"Process npc lsts for npc records to add..");
+            var npcList = NPCParse.NPCList;
             foreach (var context in state.LoadOrder.PriorityOrder.LeveledNpc().WinningContextOverrides())
             {
                 var getter = context.Record;
@@ -34,9 +35,9 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
                     if (entriesParsed.Contains(e)) return;
 
                     var fkey = e.Data.Reference.FormKey;
-                    if (!NPCParse.npcList.ContainsKey(fkey)) return;
+                    if (!npcList.ContainsKey(fkey)) return;
 
-                    var npcdlist = NPCParse.npcList[fkey];
+                    var npcdlist = npcList[fkey];
 
                     foreach (var npcd in npcdlist)
                     {
@@ -62,14 +63,19 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
                 // place changed npc records links in lnpc lists
                 var changed = state.PatchMod.LeveledNpcs.GetOrAddAsOverride(getter);
 
-                foreach (var entry in entries2add) changed.Entries!.Add(entry);
+                foreach (var entry in entries2add)
+                {
+                    if (entry.Data!.Reference.FormKey == changed.FormKey) continue;
+
+                    changed.Entries!.Add(entry);
+                }
 
                 changedCnt++;
             }
             Console.WriteLine($"Changed {changedCnt} leveled npc lists");
         }
 
-        private static LeveledNpcEntry GetLeveledNpcEntrie(FormKey formKey, short level, short count)
+        internal static LeveledNpcEntry GetLeveledNpcEntrie(FormKey formKey, short level = 1, short count = 1)
         {
             var e = new LeveledNpcEntry
             {

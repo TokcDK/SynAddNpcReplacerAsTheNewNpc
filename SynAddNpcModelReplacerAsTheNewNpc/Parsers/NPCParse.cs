@@ -9,29 +9,26 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
 {
     internal class NPCParse
     {
-        internal static readonly Dictionary<FormKey, List<TargetFormKeyData>> npcList = new();
+        internal static readonly Dictionary<FormKey, List<TargetFormKeyData>> NPCList = new();
 
         internal static void GetChangedNPC(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
         {
-
             // search all npc where worn armor is equal found
             Console.WriteLine($"Process npc records to use new skins..");
-            var npcList = new Dictionary<FormKey, List<TargetFormKeyData>>();
+            var changedArmorsList = ArmrParse.ChangedArmorsList;
             foreach (var context in state.LoadOrder.PriorityOrder.Npc().WinningContextOverrides())
             {
                 var getter = context.Record;
 
-                if (!getter.Configuration.Flags.HasFlag(NpcConfiguration.Flag.Female)) continue;
-                if (npcList.ContainsKey(getter.FormKey)) continue;
+                //if (npcList.ContainsKey(getter.FormKey)) continue;
 
                 var wArmrFormKey = GetWornArmorFlag(getter, state);
-                if (!ArmrParse.aList.ContainsKey(wArmrFormKey)) continue;
-                var adlist = ArmrParse.aList[wArmrFormKey];
+                if (!changedArmorsList.ContainsKey(wArmrFormKey)) continue;
 
+                var adlist = changedArmorsList[wArmrFormKey];
                 foreach (var ad in adlist)
                 {
-                    if (ad.Data!.NpcSkipUnique
-                        && getter.Configuration.Flags.HasFlag(NpcConfiguration.Flag.Unique)) continue;
+                    if (!IsValidFlags(ad, getter)) continue;
 
                     // create copy of npc which to place as extra lnpc recors and relink worn armor to changed
                     var changed = context.DuplicateIntoAsNewRecord(state.PatchMod);
@@ -46,14 +43,80 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
                         Pair = ad.Pair,
                     };
 
-                    if (!npcList.ContainsKey(getter.FormKey))
+                    if (!NPCList.ContainsKey(getter.FormKey))
                     {
-                        npcList.Add(getter.FormKey, new List<TargetFormKeyData>() { d });
+                        NPCList.Add(getter.FormKey, new List<TargetFormKeyData>() { d });
                     }
-                    else npcList[getter.FormKey].Add(d);
+                    else NPCList[getter.FormKey].Add(d);
                 }
             }
-            Console.WriteLine($"Created {npcList.Count} modified npcss");
+
+            Console.WriteLine($"Search template refs for original of changed npcs..");
+            foreach (var getter in state.LoadOrder.PriorityOrder
+                .Npc()
+                .WinningOverrides()
+                .Where(g => g.FormKey.ModKey != state.PatchMod.ModKey))
+            {
+                if (getter.Template.IsNull) continue;
+
+                var templateFormKey = getter.Template.FormKey;
+
+                // search template ref to changed original
+                if (!NPCList.ContainsKey(templateFormKey)) continue;
+
+                if (!getter.Template.TryResolve<INpcGetter>(state.LinkCache, out var npcGetter)) continue;
+
+                var npcdatas = NPCList[templateFormKey];
+
+                var lnpc = state.PatchMod.LeveledNpcs.AddNew("LNpc" + npcGetter.EditorID + "Sublist");
+                lnpc.Entries = new ExtendedList<LeveledNpcEntry>
+                {
+                    LNPCParse.GetLeveledNpcEntrie(templateFormKey)
+                };
+
+                // add all changed npcs
+                foreach (var npcdata in npcdatas)
+                {
+                    if (!IsValidFlags(npcdata, getter)) continue;
+
+                    lnpc.Entries.Add(LNPCParse.GetLeveledNpcEntrie(npcdata.FormKey));
+                }
+
+                var npc = state.PatchMod.Npcs.GetOrAddAsOverride(npcGetter);
+
+                // relink template to merged lnpc
+                npc.Template.SetTo(lnpc.FormKey);
+
+                //var d = new TargetFormKeyData
+                //{
+                //    FormKey = lnpc.FormKey,
+                //    Data = npcdatas[0].Data,
+                //    Pair = null // null, it will not be use later anyway
+                //};
+
+                //npcdatas.Add(d);
+            }
+
+            Console.WriteLine($"Created {NPCList.Count} modified npcss");
+        }
+
+        private static bool IsValidFlags(TargetFormKeyData ad, INpcGetter getter)
+        {
+            if (ad.Data!.NpcSkipUnique
+                        && getter.Configuration.Flags.HasFlag(NpcConfiguration.Flag.Unique)) return false;
+
+            if (ad.Data.NpcGender == WorldModelGender.FemaleOnly
+                && !getter.Configuration.Flags.HasFlag(NpcConfiguration.Flag.Female))
+            {
+                return false;
+            }
+            else if (ad.Data.NpcGender == WorldModelGender.MaleOnly
+                && !getter.Configuration.Flags.HasFlag(NpcConfiguration.Flag.Female))
+            {
+                return false;
+            }
+
+            return true;
         }
 
         private static FormKey GetWornArmorFlag(INpcGetter getter, IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
