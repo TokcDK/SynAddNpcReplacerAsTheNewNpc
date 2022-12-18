@@ -25,6 +25,14 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
                 var wArmrFormKey = GetWornArmorFlag(getter, state);
                 if (!changedArmorsList.ContainsKey(wArmrFormKey)) continue;
 
+                FormKey raceFKey = FormKey.Null;
+                if (!getter.Race.IsNull)
+                {
+                    if(!RaceParse.RaceList.ContainsKey(getter.Race.FormKey)) continue;
+
+                    raceFKey = RaceParse.RaceList[getter.Race.FormKey][0].FormKey;
+                }
+
                 var adlist = changedArmorsList[wArmrFormKey];
                 foreach (var ad in adlist)
                 {
@@ -35,6 +43,11 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
 
                     changed.WornArmor.SetTo(ad.FormKey);
                     changed.EditorID = getter.EditorID + ad.Data!.ID;
+
+                    if(raceFKey != FormKey.Null)
+                    {
+                        changed.Race.SetTo(raceFKey);
+                    }
 
                     var d = new TargetFormKeyData
                     {
@@ -50,6 +63,43 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
                     else NPCList[getter.FormKey].Add(d);
                 }
             }
+
+            //// search all npc where worn armor is equal found
+            //Console.WriteLine($"Process npc records to use changed skins..");
+            //foreach (var context in state.LoadOrder.PriorityOrder.Npc().WinningContextOverrides())
+            //{
+            //    var getter = context.Record;
+
+            //    //if (npcList.ContainsKey(getter.FormKey)) continue;
+
+            //    var raceData = GetRaceData(getter, state);
+            //    if (raceData == FormKey.Null) continue;
+
+            //    var adlist = changedArmorsList[wArmrFormKey];
+            //    foreach (var ad in adlist)
+            //    {
+            //        if (!IsValidFlags(ad, getter)) continue;
+
+            //        // create copy of npc which to place as extra lnpc recors and relink worn armor to changed
+            //        var changed = context.DuplicateIntoAsNewRecord(state.PatchMod);
+
+            //        changed.WornArmor.SetTo(ad.FormKey);
+            //        changed.EditorID = getter.EditorID + ad.Data!.ID;
+
+            //        var d = new TargetFormKeyData
+            //        {
+            //            FormKey = changed.FormKey,
+            //            Data = ad.Data,
+            //            Pair = ad.Pair,
+            //        };
+
+            //        if (!NPCList.ContainsKey(getter.FormKey))
+            //        {
+            //            NPCList.Add(getter.FormKey, new List<TargetFormKeyData>() { d });
+            //        }
+            //        else NPCList[getter.FormKey].Add(d);
+            //    }
+            //}
 
             Console.WriteLine($"Search template refs for original of changed npcs..");
             foreach (var getter in state.LoadOrder.PriorityOrder
@@ -100,6 +150,17 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
             Console.WriteLine($"Created {NPCList.Count} modified npcss");
         }
 
+        private static FormKey GetRaceData(INpcGetter getter, IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
+        {
+            if (!getter.Configuration.TemplateFlags.HasFlag(NpcConfiguration.TemplateFlag.Traits))
+            {
+                return getter.FormKey;
+            }
+            if(getter.Template.IsNull) return getter.FormKey;
+
+            return GetRaceTemplateFormKey(getter.Template, state);
+        }
+
         private static bool IsValidFlags(TargetFormKeyData ad, INpcGetter getter)
         {
             if (ad.Data!.NpcSkipUnique
@@ -128,13 +189,33 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
 
             if (!getter.Template.IsNull)
             {
-                return GetTemplateFormKey(getter.Template, state);
+                return GetWornArmorTemplateFormKey(getter.Template, state);
             }
 
             return FormKey.Null;
         }
 
-        private static FormKey GetTemplateFormKey(IFormLinkNullableGetter<INpcSpawnGetter> template, IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
+        private static FormKey GetRaceTemplateFormKey(IFormLinkNullableGetter<INpcSpawnGetter> template, IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
+        {
+            if (!template.TryResolve(state.LinkCache, out var npc)) return FormKey.Null;
+
+            if (npc is not INpcGetter n) return FormKey.Null;
+
+            if (!n.Race.IsNull 
+                && !n.Configuration.TemplateFlags.HasFlag(NpcConfiguration.TemplateFlag.Traits))
+            {
+                return n.Race.FormKey;
+            }
+
+            if (!n.Template.IsNull)
+            {
+                return GetRaceTemplateFormKey(n.Template, state);
+            }
+
+            return FormKey.Null;
+        }
+
+        private static FormKey GetWornArmorTemplateFormKey(IFormLinkNullableGetter<INpcSpawnGetter> template, IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
         {
             if (!template.TryResolve(state.LinkCache, out var npc)) return FormKey.Null;
 
@@ -147,7 +228,7 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
 
             if (!n.Template.IsNull)
             {
-                return GetTemplateFormKey(n.Template, state);
+                return GetWornArmorTemplateFormKey(n.Template, state);
             }
 
             return FormKey.Null;

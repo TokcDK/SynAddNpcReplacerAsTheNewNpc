@@ -37,6 +37,8 @@ namespace SynAddNpcModelReplacerAsTheNewNpc
 
             ArmorParse.GetChangedSkinArmors(state);
 
+            RaceParse.GetChangedSkinArmors(state);
+
             NPCParse.GetChangedNPC(state);
 
             LNPCParse.AddChangedNPC(state);
