@@ -52,10 +52,8 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
             }
 
             Console.WriteLine($"Search template refs for original of changed npcs..");
-            foreach (var context in state.LoadOrder.PriorityOrder.Npc().WinningContextOverrides())
+            foreach (var getter in state.LoadOrder.PriorityOrder.Npc().WinningOverrides())
             {
-                var getter = context.Record;
-
                 if (getter.Template.IsNull) continue;
 
                 var templateFormKey = getter.Template.FormKey;
