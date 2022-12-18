@@ -63,7 +63,12 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
                 // place changed npc records links in lnpc lists
                 var changed = state.PatchMod.LeveledNpcs.GetOrAddAsOverride(getter);
 
-                foreach (var entry in entries2add) changed.Entries!.Add(entry);
+                foreach (var entry in entries2add)
+                {
+                    if (entry.Data!.Reference.FormKey == changed.FormKey) continue;
+
+                    changed.Entries!.Add(entry);
+                }
 
                 changedCnt++;
             }
