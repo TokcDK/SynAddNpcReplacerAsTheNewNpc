@@ -13,6 +13,12 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
 
         internal static void GetChangedSkinArmors(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
         {
+            if (AAParse.ChangedSkinAAList.Count == 0)
+            {
+                Console.WriteLine("No skin model paths was changed. Exit");
+                return;
+            }
+
             //var data = Program.Settings.SearchData;
 
             // search all armors referring found aa

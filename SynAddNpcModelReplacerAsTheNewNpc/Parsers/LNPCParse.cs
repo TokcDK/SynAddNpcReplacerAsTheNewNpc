@@ -15,6 +15,12 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
     {
         internal static void AddChangedNPC(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
         {
+            if (NPCParse.NPCList.Count == 0)
+            {
+                Console.WriteLine("No npcs was changed..");
+                return;
+            }
+
             // search npc lists where is found npc placed
             int changedCnt = 0;
             Console.WriteLine($"Process npc lsts for npc records to add..");

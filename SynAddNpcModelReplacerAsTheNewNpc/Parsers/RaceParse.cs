@@ -1,11 +1,10 @@
 ﻿using Mutagen.Bethesda.Skyrim;
 using Mutagen.Bethesda.Synthesis;
 using static SynAddNpcModelReplacerAsTheNewNpc.Program;
-using SynAddNpcModelReplacerAsTheNewNpc.Parsers;
 using Mutagen.Bethesda;
 using Mutagen.Bethesda.Plugins;
 
-namespace SynAddNpcModelReplacerAsTheNewNpc
+namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
 {
     internal class RaceParse
     {
@@ -13,6 +12,12 @@ namespace SynAddNpcModelReplacerAsTheNewNpc
 
         internal static void GetChangedSkinArmors(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
         {
+            if (ArmorParse.ChangedArmorsList.Count == 0)
+            {
+                Console.WriteLine("No skins was changed..");
+                return;
+            }
+
             Console.WriteLine($"Process race records to use changed skins..");
             var changedArmorsList = ArmorParse.ChangedArmorsList;
             foreach (var context in state.LoadOrder.PriorityOrder.Race().WinningContextOverrides())
