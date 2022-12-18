@@ -9,7 +9,7 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
 {
     internal class ArmrParse
     {
-        internal static readonly Dictionary<FormKey, List<TargetFormKeyData>> aList = new();
+        internal static readonly Dictionary<FormKey, List<TargetFormKeyData>> ChangedArmorsList = new();
 
         internal static void GetChangedSkinArmors(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
         {
@@ -17,7 +17,7 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
 
             // search all armors referring found aa
             Console.WriteLine($"Process skins to use new models..");
-            var aList = new Dictionary<FormKey, List<TargetFormKeyData>>();
+            var changedSkinAAList = AAParse.ChangedSkinAAList;
             foreach (var context in state.LoadOrder.PriorityOrder.Armor().WinningContextOverrides())
             {
                 var getter = context.Record;
@@ -26,13 +26,12 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
                     && getter.BodyTemplate != null
                     && !getter.BodyTemplate.Flags.HasFlag(BodyTemplate.Flag.NonPlayable)) continue;
                 if (getter.Armature.Count != 1) continue;
-                if (aList.ContainsKey(getter.FormKey)) continue;
+                //if (ChangedArmorsList.ContainsKey(getter.FormKey)) continue;
 
                 var aafKey = getter.Armature[0].FormKey;
-                if (!AAParse.aaList.ContainsKey(aafKey)) continue;
+                if (!changedSkinAAList.ContainsKey(aafKey)) continue;
 
-                var aadlist = AAParse.aaList[aafKey];
-
+                var aadlist = changedSkinAAList[aafKey];
                 foreach (var aad in aadlist)
                 {
                     // create copy of found armors and relink aa there to changed aa
@@ -49,14 +48,14 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
                         Pair = aad.Pair,
                     };
 
-                    if (!aList.ContainsKey(getter.FormKey))
+                    if (!ChangedArmorsList.ContainsKey(getter.FormKey))
                     {
-                        aList.Add(getter.FormKey, new List<TargetFormKeyData>() { d });
+                        ChangedArmorsList.Add(getter.FormKey, new List<TargetFormKeyData>() { d });
                     }
-                    else aList[getter.FormKey].Add(d);
+                    else ChangedArmorsList[getter.FormKey].Add(d);
                 }
             }
-            Console.WriteLine($"Created {aList.Count} modified a skins");
+            Console.WriteLine($"Created {ChangedArmorsList.Count} modified a skins");
         }
     }
 }

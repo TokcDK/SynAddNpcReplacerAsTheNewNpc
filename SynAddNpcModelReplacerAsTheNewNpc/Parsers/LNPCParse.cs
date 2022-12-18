@@ -18,6 +18,7 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
             // search npc lists where is found npc placed
             int changedCnt = 0;
             Console.WriteLine($"Process npc lsts for npc records to add..");
+            var npcList = NPCParse.NPCList;
             foreach (var context in state.LoadOrder.PriorityOrder.LeveledNpc().WinningContextOverrides())
             {
                 var getter = context.Record;
@@ -34,9 +35,9 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
                     if (entriesParsed.Contains(e)) return;
 
                     var fkey = e.Data.Reference.FormKey;
-                    if (!NPCParse.npcList.ContainsKey(fkey)) return;
+                    if (!npcList.ContainsKey(fkey)) return;
 
-                    var npcdlist = NPCParse.npcList[fkey];
+                    var npcdlist = npcList[fkey];
 
                     foreach (var npcd in npcdlist)
                     {

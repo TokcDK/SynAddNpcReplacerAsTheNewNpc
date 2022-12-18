@@ -7,7 +7,7 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
 {
     internal class AAParse
     {
-        internal static readonly Dictionary<FormKey, List<TargetFormKeyData>> aaList = new();
+        internal static readonly Dictionary<FormKey, List<TargetFormKeyData>> ChangedSkinAAList = new();
 
         internal static void GetChangedAAList(Mutagen.Bethesda.Synthesis.IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
         {
@@ -24,7 +24,6 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
                     if (!target.Enabled) continue;
 
                     IArmorAddon? aacache = null;
-
                     foreach ((IModelGetter? worldModel, WorldModelGender genderFlag) in new[]
                     {
                         ( getter.WorldModel.Female, WorldModelGender.FemaleOnly ),
@@ -69,18 +68,18 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
                                 Pair = pair,
                             };
 
-                            if (!aaList.ContainsKey(getter.FormKey))
+                            if (!ChangedSkinAAList.ContainsKey(getter.FormKey))
                             {
-                                aaList.Add(getter.FormKey, new List<TargetFormKeyData>() { d });
+                                ChangedSkinAAList.Add(getter.FormKey, new List<TargetFormKeyData>() { d });
                             }
-                            else aaList[getter.FormKey].Add(d);
+                            else ChangedSkinAAList[getter.FormKey].Add(d);
 
                             aacache = aa;
                         }
                     }
                 }
             }
-            Console.WriteLine($"Created {aaList.Count} modified skin aa");
+            Console.WriteLine($"Created {ChangedSkinAAList.Count} modified skin aa");
         }
     }
 }
