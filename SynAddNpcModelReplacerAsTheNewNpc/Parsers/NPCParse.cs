@@ -52,7 +52,10 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
             }
 
             Console.WriteLine($"Search template refs for original of changed npcs..");
-            foreach (var getter in state.LoadOrder.PriorityOrder.Npc().WinningOverrides())
+            foreach (var getter in state.LoadOrder.PriorityOrder
+                .Npc()
+                .WinningOverrides()
+                .Where(g => g.FormKey.ModKey != state.PatchMod.ModKey))
             {
                 if (getter.Template.IsNull) continue;
 
@@ -86,7 +89,7 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
 
                 var d = new TargetFormKeyData
                 {
-                    FormKey = npcGetter.FormKey,
+                    FormKey = lnpc.FormKey,
                     Data = npcdatas[0].Data,
                     Pair = null // null, it will not be use later anyway
                 };
