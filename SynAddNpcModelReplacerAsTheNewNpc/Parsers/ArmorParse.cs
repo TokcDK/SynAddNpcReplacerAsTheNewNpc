@@ -7,7 +7,7 @@ using static SynAddNpcModelReplacerAsTheNewNpc.Program;
 
 namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
 {
-    internal class ArmrParse
+    internal class ArmorParse
     {
         internal static readonly Dictionary<FormKey, List<TargetFormKeyData>> ChangedArmorsList = new();
 

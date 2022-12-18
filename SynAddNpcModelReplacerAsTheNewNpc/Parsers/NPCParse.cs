@@ -14,8 +14,8 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
         internal static void GetChangedNPC(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
         {
             // search all npc where worn armor is equal found
-            Console.WriteLine($"Process npc records to use new skins..");
-            var changedArmorsList = ArmrParse.ChangedArmorsList;
+            Console.WriteLine($"Process npc records to use changed skins..");
+            var changedArmorsList = ArmorParse.ChangedArmorsList;
             foreach (var context in state.LoadOrder.PriorityOrder.Npc().WinningContextOverrides())
             {
                 var getter = context.Record;
