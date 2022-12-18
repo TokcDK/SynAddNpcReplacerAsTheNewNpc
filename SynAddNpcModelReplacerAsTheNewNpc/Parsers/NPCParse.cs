@@ -19,6 +19,9 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
                 return;
             }
 
+            //iterate lvln records and check all npc in them for changed race record, then make changed + add worn armor and remove use inventory flag
+            //same as above but change only npc not using use inventory and use traits flags
+
             // search all npc where worn armor is equal found
             Console.WriteLine($"Process npc records to use changed skins..");
             var changedArmorsList = ArmorParse.ChangedArmorsList;
