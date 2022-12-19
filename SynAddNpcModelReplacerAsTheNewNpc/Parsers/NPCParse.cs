@@ -73,43 +73,6 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
                 }
             }
 
-            //// search all npc where worn armor is equal found
-            //Console.WriteLine($"Process npc records to use changed skins..");
-            //foreach (var context in state.LoadOrder.PriorityOrder.Npc().WinningContextOverrides())
-            //{
-            //    var getter = context.Record;
-
-            //    //if (npcList.ContainsKey(getter.FormKey)) continue;
-
-            //    var raceData = GetRaceData(getter, state);
-            //    if (raceData == FormKey.Null) continue;
-
-            //    var adlist = changedArmorsList[wArmrFormKey];
-            //    foreach (var ad in adlist)
-            //    {
-            //        if (!IsValidFlags(ad, getter)) continue;
-
-            //        // create copy of npc which to place as extra lnpc recors and relink worn armor to changed
-            //        var changed = context.DuplicateIntoAsNewRecord(state.PatchMod);
-
-            //        changed.WornArmor.SetTo(ad.FormKey);
-            //        changed.EditorID = getter.EditorID + ad.Data!.ID;
-
-            //        var d = new TargetFormKeyData
-            //        {
-            //            FormKey = changed.FormKey,
-            //            Data = ad.Data,
-            //            Pair = ad.Pair,
-            //        };
-
-            //        if (!NPCList.ContainsKey(getter.FormKey))
-            //        {
-            //            NPCList.Add(getter.FormKey, new List<TargetFormKeyData>() { d });
-            //        }
-            //        else NPCList[getter.FormKey].Add(d);
-            //    }
-            //}
-
             Console.WriteLine($"Search template refs for original of changed npcs..");
             foreach (var getter in state.LoadOrder.PriorityOrder
                 .Npc()
@@ -159,6 +122,7 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
             Console.WriteLine($"Created {NPCList.Count} modified npcss");
         }
 
+        internal static Dictionary<FormKey, FormKey> NPCCache = new();
         internal static void GetChangedNPC2(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
         {
             if (ArmorParse.ChangedArmorsList.Count == 0)
@@ -209,13 +173,22 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
                 {
                     foreach (var wd in walist)
                     {
-                        var newnpc = patchMod.Npcs.DuplicateInAsNewRecord(npcGetter);
-                        newnpc.EditorID = npcGetter.EditorID + wd.Data!.ID;
+                        if (NPCCache.ContainsKey(npcGetter.FormKey))
+                        {
+                            lnpc.Entries.Add(LNPCParse.GetLeveledNpcEntrie(NPCCache[npcGetter.FormKey], 1, 1));
+                        }
+                        else
+                        {
+                            var newnpc = patchMod.Npcs.DuplicateInAsNewRecord(npcGetter);
+                            newnpc.EditorID = npcGetter.EditorID + wd.Data!.ID;
 
-                        newnpc.Race.SetTo(rd.FormKey);
-                        newnpc.WornArmor.SetTo(wd.FormKey);
+                            newnpc.Race.SetTo(rd.FormKey);
+                            newnpc.WornArmor.SetTo(wd.FormKey);
+                            lnpc.Entries.Add(LNPCParse.GetLeveledNpcEntrie(newnpc.FormKey, 1, 1));
 
-                        lnpc.Entries.Add(LNPCParse.GetLeveledNpcEntrie(newnpc.FormKey, 1, 1));
+                            // remember changed npcs to not create them many times
+                            NPCCache.Add(npcGetter.FormKey, newnpc.FormKey);
+                        }
                     }
                 }
 

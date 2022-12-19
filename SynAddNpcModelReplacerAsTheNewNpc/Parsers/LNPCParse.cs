@@ -104,6 +104,7 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
             var patchModKey = patchMod.ModKey;
             var racelist = RaceParse.RaceList;
             var skinarmorlist = ArmorParse.ChangedArmorsList;
+            var npcCache = NPCParse.NPCCache;
             foreach (var context in state.LoadOrder.PriorityOrder
                 .LeveledNpc()
                 .WinningContextOverrides()
@@ -139,13 +140,20 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
                     {
                         foreach (var wd in walist)
                         {
-                            var newnpc = patchMod.Npcs.DuplicateInAsNewRecord(npcGetter);
-                            newnpc.EditorID = npcGetter.EditorID + wd.Data!.ID;
+                            if (npcCache.ContainsKey(npcGetter.FormKey))
+                            {
+                                entryList.Add(GetLeveledNpcEntrie(npcCache[npcGetter.FormKey], l, c));
+                            }
+                            else
+                            {
+                                var newnpc = patchMod.Npcs.DuplicateInAsNewRecord(npcGetter);
+                                newnpc.EditorID = npcGetter.EditorID + wd.Data!.ID;
 
-                            newnpc.Race.SetTo(rd.FormKey);
-                            newnpc.WornArmor.SetTo(wd.FormKey);
+                                newnpc.Race.SetTo(rd.FormKey);
+                                newnpc.WornArmor.SetTo(wd.FormKey);
 
-                            entryList.Add(GetLeveledNpcEntrie(newnpc.FormKey, l, c));
+                                entryList.Add(GetLeveledNpcEntrie(newnpc.FormKey, l, c));
+                            }
                         }
                     }
                 }
