@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Mutagen.Bethesda;
 using Mutagen.Bethesda.Plugins;
+using Mutagen.Bethesda.Plugins.Records;
 using Mutagen.Bethesda.Skyrim;
 using Mutagen.Bethesda.Synthesis;
 using Noggog;
@@ -83,9 +84,26 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
 
         internal static void AddChangedNPC2(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
         {
-            var patch = state.PatchMod;
+            if (ArmorParse.ChangedArmorsList.Count == 0)
+            {
+                Console.WriteLine("No skins was changed..");
+                return;
+            }
+
+            if (RaceParse.RaceList.Count == 0)
+            {
+                Console.WriteLine("No races was changed..");
+                return;
+            }
+
+            Console.WriteLine($"Check LVLN lists");
+
+            int changedCnt = 0;
+            var patchMod = state.PatchMod;
             var cache = state.LinkCache;
-            var patchModKey = patch.ModKey;
+            var patchModKey = patchMod.ModKey;
+            var racelist = RaceParse.RaceList;
+            var skinarmorlist = ArmorParse.ChangedArmorsList;
             foreach (var context in state.LoadOrder.PriorityOrder
                 .LeveledNpc()
                 .WinningContextOverrides()
@@ -96,6 +114,7 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
 
                 if (getter.Entries == null) continue;
 
+                var entryList = new List<LeveledNpcEntry>();
                 foreach (var entry in getter.Entries)
                 {
                     if(entry.Data==null) continue;
@@ -105,11 +124,50 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
                     if (npcGetter.Configuration.TemplateFlags
                         .HasFlag(NpcConfiguration.TemplateFlag.Traits)) continue;
 
-                    if (!RaceParse.RaceList.ContainsKey(npcGetter.Race.FormKey)) continue;
+                    var racefkey = npcGetter.Race.FormKey;
+                    if (!racelist.ContainsKey(racefkey)) continue;
+                    var wornarmorfkey = npcGetter.WornArmor.FormKey;
+                    if (!skinarmorlist.ContainsKey(wornarmorfkey)) continue;
 
+                    var rdlist = racelist[racefkey];
+                    var walist = skinarmorlist[wornarmorfkey];
 
+                    var l = entry.Data.Level;
+                    var c = entry.Data.Count;
+
+                    foreach (var rd in rdlist)
+                    {
+                        foreach (var wd in walist)
+                        {
+                            //var changed = npcGetter.DeepCopy();
+
+                            var newnpc = patchMod.Npcs.DuplicateInAsNewRecord(npcGetter);
+                            newnpc.EditorID = npcGetter.EditorID + wd.Data!.ID;
+
+                            newnpc.Race.SetTo(rd.FormKey);
+                            newnpc.WornArmor.SetTo(wd.FormKey);
+
+                            entryList.Add(GetLeveledNpcEntrie(newnpc.FormKey, l, c));
+                        }
+                    }
                 }
+
+                if (entryList.Count == 0) continue;
+
+                var changedlvln = patchMod.LeveledNpcs.GetOrAddAsOverride(getter);
+
+                var lvlnfkey = changedlvln.FormKey;
+                foreach (var e in entryList)
+                {
+                    if (e.Data!.Reference.FormKey == lvlnfkey) 
+                        continue;
+
+                    changedlvln.Entries!.Add(e);
+                }
+
+                changedCnt++;
             }
+            Console.WriteLine($"Changed {changedCnt} leveled npc lists");
         }
 
         internal static LeveledNpcEntry GetLeveledNpcEntrie(FormKey formKey, short level = 1, short count = 1)
