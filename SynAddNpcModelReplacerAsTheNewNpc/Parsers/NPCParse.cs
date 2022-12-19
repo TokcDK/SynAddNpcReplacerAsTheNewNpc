@@ -159,6 +159,79 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
             Console.WriteLine($"Created {NPCList.Count} modified npcss");
         }
 
+        internal static void GetChangedNPC2(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
+        {
+            if (ArmorParse.ChangedArmorsList.Count == 0)
+            {
+                Console.WriteLine("No skins was changed..");
+                return;
+            }
+
+            if (RaceParse.RaceList.Count == 0)
+            {
+                Console.WriteLine("No races was changed..");
+                return;
+            }
+
+            int changedNpcTemplates = 0;
+            var patchMod = state.PatchMod;
+            var cache = state.LinkCache;
+            var patchModKey = patchMod.ModKey;
+            var racelist = RaceParse.RaceList;
+            var skinarmorlist = ArmorParse.ChangedArmorsList;
+            Console.WriteLine($"Search template refs for original of changed npcs..");
+            foreach (var getter in state.LoadOrder.PriorityOrder
+                .Npc()
+                .WinningOverrides()
+                .Where(g => g.FormKey.ModKey != patchModKey))
+            {
+                if (getter.Template.IsNull) continue;
+
+                if (!getter.Template.TryResolve<INpcGetter>(cache, out var npcGetter)) continue;
+
+                if (npcGetter.Configuration.TemplateFlags
+                    .HasFlag(NpcConfiguration.TemplateFlag.Traits)) continue;
+
+                var racefkey = npcGetter.Race.FormKey;
+                if (!racelist.ContainsKey(racefkey)) continue;
+                var wornarmorfkey = npcGetter.WornArmor.FormKey;
+                if (!skinarmorlist.ContainsKey(wornarmorfkey)) continue;
+
+                var templateFormKey = getter.Template.FormKey;
+
+                var lnpc = state.PatchMod.LeveledNpcs.AddNew("LNpc" + npcGetter.EditorID + "Sublist");
+                lnpc.Entries = new ExtendedList<LeveledNpcEntry>
+                {
+                    LNPCParse.GetLeveledNpcEntrie(templateFormKey)
+                };
+
+                var rdlist = racelist[racefkey];
+                var walist = skinarmorlist[wornarmorfkey];
+                foreach (var rd in rdlist)
+                {
+                    foreach (var wd in walist)
+                    {
+                        var newnpc = patchMod.Npcs.DuplicateInAsNewRecord(npcGetter);
+                        newnpc.EditorID = npcGetter.EditorID + wd.Data!.ID;
+
+                        newnpc.Race.SetTo(rd.FormKey);
+                        newnpc.WornArmor.SetTo(wd.FormKey);
+
+                        lnpc.Entries.Add(LNPCParse.GetLeveledNpcEntrie(newnpc.FormKey, 1, 1));
+                    }
+                }
+
+                var npc = state.PatchMod.Npcs.GetOrAddAsOverride(npcGetter);
+
+                // relink template to merged lnpc
+                npc.Template.SetTo(lnpc.FormKey);
+
+                changedNpcTemplates++;
+            }
+
+            Console.WriteLine($"Changed {changedNpcTemplates} npc templates");
+        }
+
         private static FormKey GetRaceData(INpcGetter getter, IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
         {
             if (!getter.Configuration.TemplateFlags.HasFlag(NpcConfiguration.TemplateFlag.Traits))

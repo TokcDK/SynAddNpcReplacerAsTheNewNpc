@@ -139,8 +139,6 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
                     {
                         foreach (var wd in walist)
                         {
-                            //var changed = npcGetter.DeepCopy();
-
                             var newnpc = patchMod.Npcs.DuplicateInAsNewRecord(npcGetter);
                             newnpc.EditorID = npcGetter.EditorID + wd.Data!.ID;
 
