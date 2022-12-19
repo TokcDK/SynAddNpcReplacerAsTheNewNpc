@@ -81,6 +81,26 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
             Console.WriteLine($"Changed {changedCnt} leveled npc lists");
         }
 
+        internal static void AddChangedNPC2(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
+        {
+            foreach (var context in state.LoadOrder.PriorityOrder.LeveledNpc().WinningContextOverrides())
+            {
+                var getter = context.Record;
+
+                if (getter.Entries == null) continue;
+
+                foreach (var entry in getter.Entries)
+                {
+                    if(entry.Data==null) continue;
+                    if (entry.Data.Reference.IsNull) continue;
+                    if (!entry.Data.Reference
+                        .TryResolve<INpcGetter>(state.LinkCache, out var npcGetter)) continue;
+
+
+                }
+            }
+        }
+
         internal static LeveledNpcEntry GetLeveledNpcEntrie(FormKey formKey, short level = 1, short count = 1)
         {
             var e = new LeveledNpcEntry
