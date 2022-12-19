@@ -190,6 +190,9 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
                             newnpc.WornArmor.SetTo(wd.FormKey);
                             lnpc.Entries.Add(LNPCParse.GetLeveledNpcEntrie(newnpc.FormKey, 1, 1));
 
+                            rd.IsChanged = true;
+                            wd.IsChanged = true;
+
                             // remember changed npcs to not create them many times
                             NPCCache.Add(npcGetter.FormKey, newnpc.FormKey);
                         }

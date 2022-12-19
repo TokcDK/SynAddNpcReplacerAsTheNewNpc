@@ -27,6 +27,7 @@ namespace SynAddNpcModelReplacerAsTheNewNpc
             public FormKey FormKey;
             public NPCReplacerData? Data;
             public SearchReplacePair? Pair;
+            public bool IsChanged;
         }
 
         public static void RunPatch(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
@@ -44,6 +45,8 @@ namespace SynAddNpcModelReplacerAsTheNewNpc
 
             //LNPCParse.AddChangedNPC(state);
             LNPCParse.AddChangedNPC2(state);
+
+            General.CleanNotUsing(state);
         }
     }
 }

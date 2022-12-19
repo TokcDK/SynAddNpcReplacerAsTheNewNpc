@@ -54,6 +54,8 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
                         Pair = aad.Pair,
                     };
 
+                    aad.IsChanged = true;
+
                     if (!ChangedArmorsList.ContainsKey(getter.FormKey))
                     {
                         ChangedArmorsList.Add(getter.FormKey, new List<TargetFormKeyData>() { d });
