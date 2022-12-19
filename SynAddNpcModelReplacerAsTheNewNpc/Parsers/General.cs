@@ -19,7 +19,7 @@
             }
 
             var armors = state.PatchMod.Armors;
-            foreach (var d in RaceParse.RaceList)
+            foreach (var d in ArmorParse.ChangedArmorsList)
             {
                 foreach (var dd in d.Value)
                 {
