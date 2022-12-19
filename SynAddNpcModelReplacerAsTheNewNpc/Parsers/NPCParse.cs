@@ -197,12 +197,10 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
                 var wornarmorfkey = npcGetter.WornArmor.FormKey;
                 if (!skinarmorlist.ContainsKey(wornarmorfkey)) continue;
 
-                var templateFormKey = getter.Template.FormKey;
-
                 var lnpc = state.PatchMod.LeveledNpcs.AddNew("LNpc" + npcGetter.EditorID + "Sublist");
                 lnpc.Entries = new ExtendedList<LeveledNpcEntry>
                 {
-                    LNPCParse.GetLeveledNpcEntrie(templateFormKey)
+                    LNPCParse.GetLeveledNpcEntrie(npcGetter.FormKey)
                 };
 
                 var rdlist = racelist[racefkey];
@@ -221,7 +219,7 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
                     }
                 }
 
-                var npc = state.PatchMod.Npcs.GetOrAddAsOverride(npcGetter);
+                var npc = state.PatchMod.Npcs.GetOrAddAsOverride(getter);
 
                 // relink template to merged lnpc
                 npc.Template.SetTo(lnpc.FormKey);
