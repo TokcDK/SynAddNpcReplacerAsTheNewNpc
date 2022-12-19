@@ -83,7 +83,14 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
 
         internal static void AddChangedNPC2(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
         {
-            foreach (var context in state.LoadOrder.PriorityOrder.LeveledNpc().WinningContextOverrides())
+            var patch = state.PatchMod;
+            var cache = state.LinkCache;
+            var patchModKey = patch.ModKey;
+            foreach (var context in state.LoadOrder.PriorityOrder
+                .LeveledNpc()
+                .WinningContextOverrides()
+                .Where(g => g.Record.FormKey.ModKey != patchModKey)
+                )
             {
                 var getter = context.Record;
 
@@ -94,7 +101,11 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
                     if(entry.Data==null) continue;
                     if (entry.Data.Reference.IsNull) continue;
                     if (!entry.Data.Reference
-                        .TryResolve<INpcGetter>(state.LinkCache, out var npcGetter)) continue;
+                        .TryResolve<INpcGetter>(cache, out var npcGetter)) continue;
+                    if (npcGetter.Configuration.TemplateFlags
+                        .HasFlag(NpcConfiguration.TemplateFlag.Traits)) continue;
+
+                    if (!RaceParse.RaceList.ContainsKey(npcGetter.Race.FormKey)) continue;
 
 
                 }
