@@ -196,6 +196,13 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
                     }
                 }
 
+                if (lnpc.Entries.Count == 1)
+                {
+                    // remove litem if no extra items was added
+                    patchMod.LeveledNpcs.Remove(lnpc.FormKey);
+                    continue;
+                }
+
                 var npc = state.PatchMod.Npcs.GetOrAddAsOverride(getter);
 
                 // relink template to merged lnpc
