@@ -171,8 +171,12 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
                 var walist = skinarmorlist[wornarmorfkey];
                 foreach (var rd in rdlist)
                 {
+                    if (!IsValidFlags(rd, npcGetter)) continue;
+
                     foreach (var wd in walist)
                     {
+                        if (!IsValidFlags(wd, npcGetter)) continue;
+
                         if (NPCCache.ContainsKey(npcGetter.FormKey))
                         {
                             lnpc.Entries.Add(LNPCParse.GetLeveledNpcEntrie(NPCCache[npcGetter.FormKey], 1, 1));
@@ -203,7 +207,7 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
             Console.WriteLine($"Changed {changedNpcTemplates} npc templates");
         }
 
-        private static FormKey GetRaceData(INpcGetter getter, IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
+        internal static FormKey GetRaceData(INpcGetter getter, IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
         {
             if (!getter.Configuration.TemplateFlags.HasFlag(NpcConfiguration.TemplateFlag.Traits))
             {
@@ -214,7 +218,7 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
             return GetRaceTemplateFormKey(getter.Template, state);
         }
 
-        private static bool IsValidFlags(TargetFormKeyData ad, INpcGetter getter)
+        internal static bool IsValidFlags(TargetFormKeyData ad, INpcGetter getter)
         {
             if (ad.Data!.NpcSkipUnique
                         && getter.Configuration.Flags.HasFlag(NpcConfiguration.Flag.Unique)) return false;
@@ -233,7 +237,7 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
             return true;
         }
 
-        private static FormKey GetWornArmorFlag(INpcGetter getter, IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
+        internal static FormKey GetWornArmorFlag(INpcGetter getter, IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
         {
             if (!getter.WornArmor.IsNull)
             {
@@ -248,7 +252,7 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
             return FormKey.Null;
         }
 
-        private static FormKey GetRaceTemplateFormKey(IFormLinkNullableGetter<INpcSpawnGetter> template, IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
+        internal static FormKey GetRaceTemplateFormKey(IFormLinkNullableGetter<INpcSpawnGetter> template, IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
         {
             if (!template.TryResolve(state.LinkCache, out var npc)) return FormKey.Null;
 
@@ -268,7 +272,7 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
             return FormKey.Null;
         }
 
-        private static FormKey GetWornArmorTemplateFormKey(IFormLinkNullableGetter<INpcSpawnGetter> template, IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
+        internal static FormKey GetWornArmorTemplateFormKey(IFormLinkNullableGetter<INpcSpawnGetter> template, IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
         {
             if (!template.TryResolve(state.LinkCache, out var npc)) return FormKey.Null;
 

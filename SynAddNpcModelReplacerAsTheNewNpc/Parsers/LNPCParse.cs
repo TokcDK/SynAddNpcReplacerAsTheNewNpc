@@ -138,8 +138,12 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
 
                     foreach (var rd in rdlist)
                     {
+                        if (!NPCParse.IsValidFlags(rd, npcGetter)) continue;
+
                         foreach (var wd in walist)
                         {
+                            if (!NPCParse.IsValidFlags(wd, npcGetter)) continue;
+
                             if (npcCache.ContainsKey(npcGetter.FormKey))
                             {
                                 entryList.Add(GetLeveledNpcEntrie(npcCache[npcGetter.FormKey], l, c));
