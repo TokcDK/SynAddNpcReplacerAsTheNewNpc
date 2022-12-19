@@ -4,6 +4,8 @@
     {
         internal static void CleanNotUsing(Mutagen.Bethesda.Synthesis.IPatcherState<Mutagen.Bethesda.Skyrim.ISkyrimMod, Mutagen.Bethesda.Skyrim.ISkyrimModGetter> state)
         {
+            Console.WriteLine($"Clean not using data..");
+
             var aas = state.PatchMod.ArmorAddons;
             foreach (var d in AAParse.ChangedSkinAAList)
             {
