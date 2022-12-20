@@ -49,7 +49,7 @@ namespace SynAddNpcModelReplacerAsTheNewNpc
             //LNPCParse.AddChangedNPC(state);
             LNPCParse.AddChangedNPC2(state);
 
-            General.CleanNotUsing(state);
+            //General.CleanNotUsing(state);
         }
     }
 }
