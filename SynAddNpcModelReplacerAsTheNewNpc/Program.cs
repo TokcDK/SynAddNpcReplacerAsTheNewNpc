@@ -42,6 +42,7 @@ namespace SynAddNpcModelReplacerAsTheNewNpc
             RaceParse.GetChangedSkinArmors(state);
 
             AAParse.RelinkRaces(state);
+            ArmorParse.RelinkRaces(state);
 
             //NPCParse.GetChangedNPC(state);
             NPCParse.GetChangedNPC2(state);
