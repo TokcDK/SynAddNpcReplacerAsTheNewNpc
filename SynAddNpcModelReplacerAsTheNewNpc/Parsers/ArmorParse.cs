@@ -24,7 +24,12 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
             // search all armors referring found aa
             Console.WriteLine($"Process skins to use new models..");
             var changedSkinAAList = AAParse.ChangedSkinAAList;
-            foreach (var context in state.LoadOrder.PriorityOrder.Armor().WinningContextOverrides())
+            var patchMod= state.PatchMod;
+            var patchModKey = patchMod.ModKey;
+            foreach (var context in state.LoadOrder.PriorityOrder
+                .Armor()
+                .WinningContextOverrides()
+                .Where(g => g.Record.FormKey.ModKey != patchModKey))
             {
                 var getter = context.Record;
 
@@ -41,7 +46,7 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
                 foreach (var aad in aadlist)
                 {
                     // create copy of found armors and relink aa there to changed aa
-                    var changed = context.DuplicateIntoAsNewRecord(state.PatchMod);
+                    var changed = context.DuplicateIntoAsNewRecord(patchMod);
 
                     changed.Armature.Clear();
                     changed.Armature.Add(aad.FormKey);

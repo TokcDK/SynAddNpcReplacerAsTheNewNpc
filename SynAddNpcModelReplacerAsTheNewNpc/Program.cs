@@ -28,6 +28,7 @@ namespace SynAddNpcModelReplacerAsTheNewNpc
             public NPCReplacerData? Data;
             public SearchReplacePair? Pair;
             public bool IsChanged;
+            public object? Object;
         }
 
         public static void RunPatch(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
@@ -40,13 +41,15 @@ namespace SynAddNpcModelReplacerAsTheNewNpc
 
             RaceParse.GetChangedSkinArmors(state);
 
+            AAParse.RelinkRaces(state);
+
             //NPCParse.GetChangedNPC(state);
             NPCParse.GetChangedNPC2(state);
 
             //LNPCParse.AddChangedNPC(state);
             LNPCParse.AddChangedNPC2(state);
 
-            General.CleanNotUsing(state);
+            //General.CleanNotUsing(state);
         }
     }
 }

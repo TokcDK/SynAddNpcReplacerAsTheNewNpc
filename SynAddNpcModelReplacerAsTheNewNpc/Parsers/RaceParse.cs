@@ -20,7 +20,12 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
 
             Console.WriteLine($"Process race records to use changed skins..");
             var changedArmorsList = ArmorParse.ChangedArmorsList;
-            foreach (var context in state.LoadOrder.PriorityOrder.Race().WinningContextOverrides())
+            var patchMod = state.PatchMod;
+            var patchModKey = patchMod.ModKey;
+            foreach (var context in state.LoadOrder.PriorityOrder
+                .Race()
+                .WinningContextOverrides()
+                .Where(g => g.Record.FormKey.ModKey != patchModKey))
             {
                 var getter = context.Record;
 
@@ -31,7 +36,7 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
                 foreach (var ad in adlist)
                 {
                     // create copy of npc which to place as extra lnpc recors and relink worn armor to changed
-                    var changed = context.DuplicateIntoAsNewRecord(state.PatchMod);
+                    var changed = context.DuplicateIntoAsNewRecord(patchMod);
 
                     changed.Skin.SetTo(ad.FormKey);
                     changed.EditorID = getter.EditorID + ad.Data!.ID;
