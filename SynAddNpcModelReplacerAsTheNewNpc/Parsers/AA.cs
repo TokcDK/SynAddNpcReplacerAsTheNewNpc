@@ -131,6 +131,8 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
                         {
                             aa.Race.SetTo(rd.FormKey);
                             isSet = true;
+
+                            relinkedCount++;
                         }
                     }
                 }
@@ -138,8 +140,6 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
                 if (add.Count == 0) continue;
 
                 foreach(var d in add) data.Value.Add(d);
-
-                relinkedCount++;
             }
             Console.WriteLine($"Relinked {relinkedCount} AA races..");
         }
