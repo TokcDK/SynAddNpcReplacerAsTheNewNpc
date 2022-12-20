@@ -186,6 +186,9 @@ namespace SynAddNpcModelReplacerAsTheNewNpc.Parsers
                             var newnpc = patchMod.Npcs.DuplicateInAsNewRecord(npcGetter);
                             newnpc.EditorID = npcGetter.EditorID + wd.Data!.ID;
 
+                            newnpc.Configuration.TemplateFlags &= ~NpcConfiguration.TemplateFlag.Traits;
+                            newnpc.Configuration.TemplateFlags &= ~NpcConfiguration.TemplateFlag.Inventory;
+
                             newnpc.Race.SetTo(rd.FormKey);
                             newnpc.WornArmor.SetTo(wd.FormKey);
                             lnpc.Entries.Add(LNPCParse.GetLeveledNpcEntrie(newnpc.FormKey, 1, 1));
